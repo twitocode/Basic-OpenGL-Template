@@ -33,7 +33,24 @@ if(NOT glad_POPULATED)
     set(GLAD_GENERATOR "c" CACHE STRING "Language to generate the binding for")
 endif()
 
-include_directories(MainLibrary)
-add_executable(MainExecutable main.cpp)
+FetchContent_Declare(
+  glm
+  GIT_REPOSITORY https://github.com/g-truc/glm.git
+  GIT_TAG        1.0.1 # release-1.10.0
+  FIND_PACKAGE_ARGS
+)
 
-target_link_libraries(MainExecutable glfw glad)
+FetchContent_GetProperties(glm)
+if(NOT glm_POPULATED)
+    FetchContent_MakeAvailable(glm)
+endif()
+
+file(GLOB PROJECT_SHADERS shaders/*.vert shaders/*.frag)
+source_group("Shaders" FILES ${PROJECT_SHADERS})
+
+add_executable(${PROJECT_NAME} main.cpp ${PROJECT_SHADERS})
+
+
+#target_sources(${PROJECT_NAME} PRIVATE src/Shader.cpp src/VBO.cpp src/VAO.cpp src/IBO.cpp)
+target_include_directories(${PROJECT_NAME} PUBLIC src)
+target_link_libraries(${PROJECT_NAME} glfw glad glm)
